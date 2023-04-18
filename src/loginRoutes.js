@@ -1,7 +1,7 @@
 const nanoid = require('nanoid');
 const { Router } = require('express');
-const fs = require('fs/promises');
-const path = require('path');
+// const fs = require('fs/promises');
+// const path = require('path');
 
 const router = Router();
 
