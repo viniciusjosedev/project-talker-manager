@@ -4,6 +4,8 @@ const { Router } = require('express');
 
 const router = Router();
 
+const nomeDoArquivo = 'talker.json';
+
 const isAuth = (req, response, next) => {
   const { authorization } = req.headers;
   // console.log(authorization);
@@ -74,13 +76,13 @@ const validationTalk = (req, res, next) => {
 };
 
 router.get('/talker', async (_request, response) => {
-  const data = JSON.parse(await fs.readFile(path.resolve(__dirname, 'talker.json')));
+  const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
   response.status(200).json(data);
 });
 
 router.get('/talker/:id', async (request, response) => {
   const { id } = request.params;
-  const data = JSON.parse(await fs.readFile(path.resolve(__dirname, 'talker.json')));
+  const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
   const filter = data.find((e) => e.id === Number(id));
   if (!filter) return response.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   return response.status(200).json(filter);
@@ -89,8 +91,8 @@ router.get('/talker/:id', async (request, response) => {
 router.post('/talker', isAuth, validationName, validationAge, validationTalk,
   async (_request, response) => {
     const { body } = _request;
-    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, 'talker.json')));
-    await fs.writeFile(path.resolve(__dirname, 'talker.json'), JSON
+    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
+    await fs.writeFile(path.resolve(__dirname, nomeDoArquivo), JSON
       .stringify([...data, { id: data.length + 1, ...body }]));
     response.status(201).json({ id: data.length + 1, ...body });
 });
@@ -98,23 +100,23 @@ router.post('/talker', isAuth, validationName, validationAge, validationTalk,
 router.put('/talker/:id', isAuth, validationName, validationAge, validationTalk,
   async (_request, response) => {
     const { body, params: { id } } = _request;
-    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, 'talker.json')));
+    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
     const filter = data.find((e) => e.id === Number(id));
     if (!filter) return response.status(404).json({ message: 'Pessoa palestrante não encontrada' });
     const index = data.findIndex((e) => e.id === Number(id));
     data[index] = { ...data[index], ...body };
-    await fs.writeFile(path.resolve(__dirname, 'talker.json'), JSON
+    await fs.writeFile(path.resolve(__dirname, nomeDoArquivo), JSON
       .stringify([...data]));
     response.status(200).json(data[index]);
 });
 
 router.delete('/talker/:id', isAuth, async (_request, response) => {
     const { params: { id } } = _request;
-    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, 'talker.json')));
+    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
     const find = data.find((e) => e.id === Number(id));
     if (!find) return response.status(204).json();
     const filter = data.filter((e) => e.id !== Number(id));
-    await fs.writeFile(path.resolve(__dirname, 'talker.json'), JSON
+    await fs.writeFile(path.resolve(__dirname, nomeDoArquivo), JSON
       .stringify([...filter]));
     return response.status(204).json();
 });
