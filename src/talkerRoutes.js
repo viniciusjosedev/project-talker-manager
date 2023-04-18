@@ -80,6 +80,14 @@ router.get('/talker', async (_request, response) => {
   response.status(200).json(data);
 });
 
+router.get('/talker/search', isAuth, async (_request, response) => {
+  const { q } = _request.query;
+  const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
+  const filter = data.filter((e) => e.name.toLowerCase().includes(q.toLowerCase()));
+  console.log(filter);
+  return response.status(200).json(filter);
+});
+
 router.get('/talker/:id', async (request, response) => {
   const { id } = request.params;
   const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
