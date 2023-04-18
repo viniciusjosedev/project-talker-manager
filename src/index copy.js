@@ -1,7 +1,7 @@
 const express = require('express');
+const nanoid = require('nanoid');
 
 const talkerRoute = require('./talkerRoutes');
-const loginRoutes = require('./loginRoutes');
 
 const app = express();
 app.use(express.json());
@@ -15,7 +15,11 @@ app.get('/', (_request, response) => {
 });
 
 app.use(talkerRoute);
-app.use(loginRoutes);
+
+app.post('/login', async (request, response) => {
+  const token = nanoid(16);
+  return response.status(200).json({ token });
+});
 
 app.listen(PORT, () => {
   console.log('Online');
