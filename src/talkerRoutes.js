@@ -46,7 +46,7 @@ const completValidationRate = (req, res, next) => {
     return res.status(400)
       .json({ message: 'O campo "rate" deve ser um número inteiro entre 1 e 5' }); 
   }
-  console.log('vai passar abaixo');
+  // console.log('vai passar abaixo');
   if (!([1, 2, 3, 4, 5].includes(Number(rate)))) {
     return res.status(400)
       .json({ message: 'O campo "rate" deve ser um número inteiro entre 1 e 5' }); 
@@ -106,6 +106,17 @@ router.put('/talker/:id', isAuth, validationName, validationAge, validationTalk,
     await fs.writeFile(path.resolve(__dirname, 'talker.json'), JSON
       .stringify([...data]));
     response.status(200).json(data[index]);
+});
+
+router.delete('/talker/:id', isAuth, async (_request, response) => {
+    const { params: { id } } = _request;
+    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, 'talker.json')));
+    const find = data.find((e) => e.id === Number(id));
+    if (!find) return response.status(204).json();
+    const filter = data.filter((e) => e.id !== Number(id));
+    await fs.writeFile(path.resolve(__dirname, 'talker.json'), JSON
+      .stringify([...filter]));
+    return response.status(204).json();
 });
 
 module.exports = router;
