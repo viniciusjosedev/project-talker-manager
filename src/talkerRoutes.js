@@ -95,4 +95,17 @@ router.post('/talker', isAuth, validationName, validationAge, validationTalk,
     response.status(201).json({ id: data.length + 1, ...body });
 });
 
+router.put('/talker/:id', isAuth, validationName, validationAge, validationTalk,
+  async (_request, response) => {
+    const { body, params: { id } } = _request;
+    const data = JSON.parse(await fs.readFile(path.resolve(__dirname, 'talker.json')));
+    const filter = data.find((e) => e.id === Number(id));
+    if (!filter) return response.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    const index = data.findIndex((e) => e.id === Number(id));
+    data[index] = { ...data[index], ...body };
+    await fs.writeFile(path.resolve(__dirname, 'talker.json'), JSON
+      .stringify([...data]));
+    response.status(200).json(data[index]);
+});
+
 module.exports = router;
