@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs/promises');
+const nanoid = require('nanoid');
 
 const app = express();
 app.use(express.json());
@@ -24,6 +25,11 @@ app.get('/talker/:id', async (request, response) => {
   const filter = data.find((e) => e.id === Number(id));
   if (!filter) return response.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   return response.status(200).json(filter);
+});
+
+app.post('/login', async (request, response) => {
+  const token = nanoid(16);
+  return response.status(200).json({ token });
 });
 
 app.listen(PORT, () => {
