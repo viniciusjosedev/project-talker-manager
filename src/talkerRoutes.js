@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 const { Router } = require('express');
+const connection = require('./connection');
 
 const router = Router();
 
@@ -78,6 +79,16 @@ const validationTalk = (req, res, next) => {
 router.get('/talker', async (_request, response) => {
   const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
   response.status(200).json(data);
+});
+
+router.get('/talker/db', async (_request, response) => {
+  const [result] = await connection.execute('SELECT * FROM talkers');
+  const ajust = [];
+  result.forEach((e) => {
+    const { name, age, id } = e; 
+    ajust.push({ name, age, id, talk: { watchedAt: e.talk_watched_at, rate: e.talk_rate } });
+  });
+  response.status(200).json(ajust);
 });
 
 const validationQ = async (req, res, next) => {
@@ -177,7 +188,7 @@ router.patch('/talker/rate/:id', isAuth, async (_request, response) => {
         .json({ message: 'O campo "rate" deve ser um número inteiro entre 1 e 5' });
     }
     const index = data.findIndex((e) => Number(e.id) === Number(id));
-    console.log(id);
+    // console.log(id);
     data[index].talk.rate = Number(rate);
     await fs.writeFile(path.resolve(__dirname, nomeDoArquivo), JSON.stringify(data));
     return response.status(204).json();
