@@ -168,4 +168,21 @@ router.delete('/talker/:id', isAuth, async (_request, response) => {
     return response.status(204).json();
 });
 
+router.patch('/talker/rate/:id', isAuth, async (_request, response) => {
+  const { params: { id }, body: { rate } } = _request;
+  const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
+  if (rate !== undefined) {
+    if (!([1, 2, 3, 4, 5].includes(Number(rate)))) {
+      return response.status(400)
+        .json({ message: 'O campo "rate" deve ser um número inteiro entre 1 e 5' });
+    }
+    const index = data.findIndex((e) => Number(e.id) === Number(id));
+    console.log(id);
+    data[index].talk.rate = Number(rate);
+    await fs.writeFile(path.resolve(__dirname, nomeDoArquivo), JSON.stringify(data));
+    return response.status(204).json();
+  }
+  return response.status(400).json({ message: 'O campo "rate" é obrigatório' });
+});
+
 module.exports = router;
