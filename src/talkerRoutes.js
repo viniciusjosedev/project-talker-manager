@@ -80,12 +80,35 @@ router.get('/talker', async (_request, response) => {
   response.status(200).json(data);
 });
 
-router.get('/talker/search', isAuth, async (_request, response) => {
-  const { q } = _request.query;
+const validationQ = async (req, res, next) => {
+  const { q } = req.query;
   const data = JSON.parse(await fs.readFile(path.resolve(__dirname, nomeDoArquivo)));
-  const filter = data.filter((e) => e.name.toLowerCase().includes(q.toLowerCase()));
-  console.log(filter);
-  return response.status(200).json(filter);
+  if (q !== undefined) {
+    const filter = data.filter((e) => e.name.toLowerCase().includes(q.toLowerCase()));
+    req.filterParams = filter;
+    return next();
+  }
+  req.filterParams = data;
+  return next();
+};
+
+const validationRate = async (req, res, next) => {
+  const { query: { rate }, filterParams } = req;
+  if (rate !== undefined) {
+    if (!([1, 2, 3, 4, 5].includes(Number(rate)))) {
+      return res.status(400)
+        .json({ message: 'O campo "rate" deve ser um número inteiro entre 1 e 5' });
+    }
+    const filter = filterParams.filter((e) => Number(e.talk.rate) === Number(rate));
+    req.filterParams = filter;
+    return next();
+  }
+  next();
+};
+
+router.get('/talker/search', isAuth, validationQ, validationRate, async (_request, response) => {
+  const { filterParams } = _request;
+  return response.status(200).json(filterParams);
 });
 
 router.get('/talker/:id', async (request, response) => {
